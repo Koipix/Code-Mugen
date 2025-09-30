@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer playerSprite;
     private Vector3 mousePos;
     private Vector2 moveInput;
+    private Vector2 lookInput; // Add variable for look input
     private Animator animator; //Animator Component
     private Camera cam;
 
@@ -34,7 +35,15 @@ public class PlayerMovement : MonoBehaviour
 
         if (!pauseGame.isPaused)
         {
-            AimMousePoint();
+            // Check if gamepad stick is being used for aiming
+            if (lookInput.magnitude > 0.1f) // Use gamepad aim if stick is moved
+            {
+                AimGamepadStick();
+            }
+            else // Otherwise, use mouse point aiming
+            {
+                AimMousePoint();
+            }
         }
     }
 
@@ -46,6 +55,15 @@ public class PlayerMovement : MonoBehaviour
 
         //flip horizontantly based on the mouse position
         playerSprite.flipX = rotation.x < -0.5f;
+    }
+
+    // New method for gamepad stick aiming
+    public void AimGamepadStick()
+    {
+        // For simplicity, we'll only use the lookInput for horizontal flipping
+        // More complex aiming (e.g., rotating a weapon) would require calculating
+        // an angle based on lookInput.
+        playerSprite.flipX = lookInput.x < -0.5f;
     }
 
     //Play animation for the player whichever state it is, using Input System Package
@@ -60,6 +78,12 @@ public class PlayerMovement : MonoBehaviour
 
         }
         moveInput = context.ReadValue<Vector2>();
+    }
+
+    // New public method to receive Look input
+    public void Look(InputAction.CallbackContext context)
+    {
+        lookInput = context.ReadValue<Vector2>();
     }
 
     public void Dash(InputAction.CallbackContext context)
